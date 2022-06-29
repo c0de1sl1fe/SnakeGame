@@ -2,7 +2,7 @@
 #include <conio.h>
 #include <Windows.h>
 using namespace std;
-int speed = 30;
+//int speed = 30;
 
 
 bool GameOver;
@@ -53,7 +53,19 @@ void Draw()
             }
             else
             {
-                cout << " ";
+                bool print = false;
+                for (int k = 0; k < TailSize; k++)
+                {
+                    if (j == TailX[k] && i == TailY[k])
+                    {
+                        cout << "o";
+                        print = true;
+                    }
+                }
+                if (!print)
+                {
+                    cout << " ";
+                }
             }
             if (j == width - 1)
             {
@@ -97,7 +109,17 @@ void Input()
 }
 void Logic()
 {
-
+    int tmpX = x, tmpY = y;
+    int tmpTailX, tmpTailY;
+    for (int i = 0; i < TailSize; i++)
+    {
+        tmpTailX = TailX[i];
+        tmpTailY = TailY[i];
+        TailX[i] = tmpX;
+        TailY[i] = tmpY;
+        tmpX = tmpTailX;
+        tmpY = tmpTailY;
+    }
     switch (dir)
     {
     case UP:
@@ -123,7 +145,7 @@ void Logic()
         FruitX = rand() % width;
         FruitY = rand() % height;
         TailSize++;
-        speed--;
+        //speed--;
     }
 }
 int main()
@@ -137,6 +159,8 @@ int main()
         Logic();
         Sleep(20);
     }
-    Setup();
+    cout << endl << endl << "TheSCORE:" << score;
+    _getch();
+    //Setup();
     return 1;
 }
