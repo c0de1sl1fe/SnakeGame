@@ -88,16 +88,16 @@ void Input()
     {
         switch (_getch())
         {
-            case 'a':
+            case 'j':
                 dir = LEFT;
                 break;
-            case 'd':
+            case 'l':
                 dir = RIGHT;
                 break;
-            case 's':
+            case 'k':
                 dir = DOWN;
                 break;
-            case 'w':
+            case 'i':
                 dir = UP;
                 break;
             case 'x':
@@ -137,8 +137,20 @@ void Logic()
     default:
         break;
     }
-    if (x < 0 || x >= width || y < 0 || y >= height)    //with dead_line
-        GameOver = true;
+    //if (x < 0 || x >= width || y < 0 || y >= height)    //with dead_line
+    //    GameOver = true;
+    if (x < 0) x = width - 1;                       // without dead line
+    else if (x >= width) x = 0;
+    if (y < 0) y = height - 1;
+    else if (y >= height) y = 0;
+    for (int i = 0; i < TailSize; i++)
+    {
+        if (x == TailX[i] && y == TailY[i])
+        {
+            GameOver = true;
+        }
+    }
+
     if (x == FruitX && y == FruitY)
     {
         score += 10;
