@@ -7,7 +7,7 @@ using namespace std;
 
 bool GameOver;
 const int width = 30, height = 20;
-const int MaxTailLength = width * height;
+const int MaxTailLength = (width - 1) * (height - 1);
 int x, y, FruitX, FruitY, score;
 
 int TailX[MaxTailLength];
@@ -150,7 +150,11 @@ void Logic()
             GameOver = true;
         }
     }
-
+    if (TailSize - 1 == MaxTailLength)
+    {
+        GameOver = true;
+        cout << endl << "Congrads! You win!";
+    }
     if (x == FruitX && y == FruitY)
     {
         score += 10;
