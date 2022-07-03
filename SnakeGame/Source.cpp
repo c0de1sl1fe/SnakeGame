@@ -5,89 +5,107 @@ using namespace std;
 //int speed = 30;
 
 
-bool GameOver;
-const int width = 30, height = 20;
-const int MaxTailLength = (width - 1) * (height - 1);
-int x, y, FruitX, FruitY, score;
-
-int TailX[MaxTailLength];
-int TailY[MaxTailLength];
-int TailSize;
 
 enum Direction { STOP = 0, UP, DOWN, LEFT, RIGHT };
-Direction dir;
 
-void Setup()
+
+class SnakeGame
 {
-    GameOver = false;
-    dir = STOP;
-    x = width / 2;
-    y = height / 2;
+private: 
+    static bool GameOver;
+    static int width, height;
+    static int MaxTailLength;
+    static int x, y, FruitX, FruitY, score;
 
-    FruitX = rand() % width;
-    FruitY = rand() % height;
-    score = 0;
-}
-void Draw()
-{
-    system("cls");
-    for (int i = 0; i < width + 2; i++)
-        cout << "#";
-    cout << endl;
+    static int* TailX;
+    static int* TailY;
+    static int TailSize;
+    static Direction dir;
 
-    for (int i = 0; i < height; i++)
+public:
+    static void Setup()
     {
-        for (int j = 0; j < width; j++)
+        GameOver = false;
+        dir = STOP;
+        //width = input_width;
+        //height = input_height;
+
+        width = 30;
+        height = 20;
+
+
+        MaxTailLength = (width - 1) * (height - 1);
+
+        TailX = new int[MaxTailLength];
+        TailY = new int[MaxTailLength];
+
+        x = width / 2;
+        y = height / 2;
+
+        FruitX = rand() % width;
+        FruitY = rand() % height;
+        score = 0;
+    }
+    static void Draw()
+    {
+        system("cls");
+        for (int i = 0; i < width + 2; i++)
+            cout << "#";
+        cout << endl;
+
+        for (int i = 0; i < height; i++)
         {
-            if (j == 0)
+            for (int j = 0; j < width; j++)
             {
-                cout << "#";    
-            }   
-            if (j == x && i == y)
-            {
-                cout << "O";
-            }
-            else if (j == FruitX && i == FruitY)
-            {
-                cout << "F";
-            }
-            else
-            {
-                bool print = false;
-                for (int k = 0; k < TailSize; k++)
+                if (j == 0)
                 {
-                    if (j == TailX[k] && i == TailY[k])
+                    cout << "#";
+                }
+                if (j == x && i == y)
+                {
+                    cout << "O";
+                }
+                else if (j == FruitX && i == FruitY)
+                {
+                    cout << "F";
+                }
+                else
+                {
+                    bool print = false;
+                    for (int k = 0; k < TailSize; k++)
                     {
-                        cout << "o";
-                        print = true;
+                        if (j == TailX[k] && i == TailY[k])
+                        {
+                            cout << "o";
+                            print = true;
+                        }
+                    }
+                    if (!print)
+                    {
+                        cout << " ";
                     }
                 }
-                if (!print)
+                if (j == width - 1)
                 {
-                    cout << " ";
+                    cout << "#";
                 }
+
             }
-            if (j == width - 1)
-            {
-                cout << "#";
-            }
-            
+            cout << endl;
         }
+
+        for (int i = 0; i < width + 2; i++)
+            cout << "#";
+
         cout << endl;
+        cout << endl << "The Score: " << score;
     }
-
-    for (int i = 0; i < width + 2; i++)
-        cout << "#";
-
-    cout << endl;
-    cout << endl << "The Score: " << score;
-}
-void Input()
-{
-    if (_kbhit())
+    static void Input()
     {
-        switch (_getch())
+        if (_kbhit())
         {
+            switch (_getch())
+            {
             case 'j':
                 dir = LEFT;
                 break;
@@ -103,80 +121,95 @@ void Input()
             case 'x':
                 GameOver = true;
                 break;
+            }
+        }
+
+    }
+    static void Logic()
+    {
+        int tmpX = x, tmpY = y;
+        int tmpTailX, tmpTailY;
+        for (int i = 0; i < TailSize; i++)
+        {
+            tmpTailX = TailX[i];
+            tmpTailY = TailY[i];
+            TailX[i] = tmpX;
+            TailY[i] = tmpY;
+            tmpX = tmpTailX;
+            tmpY = tmpTailY;
+        }
+        switch (dir)
+        {
+        case UP:
+            y--;
+            break;
+        case DOWN:
+            y++;
+            break;
+        case LEFT:
+            x--;
+            break;
+        case RIGHT:
+            x++;
+            break;
+        default:
+            break;
+        }
+        //if (x < 0 || x >= width || y < 0 || y >= height)    //with dead_line
+        //    GameOver = true;
+        if (x < 0) x = width - 1;                       // without dead line
+        else if (x >= width) x = 0;
+        if (y < 0) y = height - 1;
+        else if (y >= height) y = 0;
+        for (int i = 0; i < TailSize; i++)
+        {
+            if (x == TailX[i] && y == TailY[i])
+            {
+                GameOver = true;
+            }
+        }
+        if (TailSize - 1 == MaxTailLength)
+        {
+            GameOver = true;
+            cout << endl << "Congrads! You win!";
+        }
+        if (x == FruitX && y == FruitY)
+        {
+            score += 10;
+            FruitX = rand() % width;
+            FruitY = rand() % height;
+            TailSize++;
+            //speed--;
         }
     }
 
-}
-void Logic()
-{
-    int tmpX = x, tmpY = y;
-    int tmpTailX, tmpTailY;
-    for (int i = 0; i < TailSize; i++)
-    {
-        tmpTailX = TailX[i];
-        tmpTailY = TailY[i];
-        TailX[i] = tmpX;
-        TailY[i] = tmpY;
-        tmpX = tmpTailX;
-        tmpY = tmpTailY;
-    }
-    switch (dir)
-    {
-    case UP:
-        y--;
-        break;
-    case DOWN:
-        y++;
-        break;
-    case LEFT:
-        x--;
-        break;
-    case RIGHT:
-        x++;
-        break;
-    default:
-        break;
-    }
-    //if (x < 0 || x >= width || y < 0 || y >= height)    //with dead_line
-    //    GameOver = true;
-    if (x < 0) x = width - 1;                       // without dead line
-    else if (x >= width) x = 0;
-    if (y < 0) y = height - 1;
-    else if (y >= height) y = 0;
-    for (int i = 0; i < TailSize; i++)
-    {
-        if (x == TailX[i] && y == TailY[i])
-        {
-            GameOver = true;
-        }
-    }
-    if (TailSize - 1 == MaxTailLength)
-    {
-        GameOver = true;
-        cout << endl << "Congrads! You win!";
-    }
-    if (x == FruitX && y == FruitY)
-    {
-        score += 10;
-        FruitX = rand() % width;
-        FruitY = rand() % height;
-        TailSize++;
-        //speed--;
-    }
-}
+    static bool IsGameOver() { return GameOver; }
+    static int GetScore() { return score; }
+};
+bool SnakeGame::GameOver = false;
+int SnakeGame::width = 30;
+int SnakeGame::height = 20;
+int SnakeGame::MaxTailLength;
+int SnakeGame::x, SnakeGame::y, SnakeGame::FruitX, SnakeGame::FruitY, SnakeGame::score;
+
+int* SnakeGame::TailX;
+int* SnakeGame::TailY;
+int SnakeGame::TailSize;
+Direction SnakeGame::dir;
+
 
 int main()
 {
-
-    Setup();
-    while (!GameOver)
+    srand(time(NULL));
+    SnakeGame::Setup();
+    while (!SnakeGame::IsGameOver())
     {
-        Draw();
-        Input();
-        Logic();
+        SnakeGame::Draw();
+        SnakeGame::Input();
+        SnakeGame::Logic();
         Sleep(20);
     }
-    cout << endl << endl << "TheSCORE:" << score;
+    cout << endl << endl << "TheSCORE:" << SnakeGame::GetScore();
     _getch();
     //Setup();
     return 1;
